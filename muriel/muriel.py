@@ -86,6 +86,10 @@ def get_subtomo_information(subtomo_star_file: PathLike, tomogram_name: str):
         coords_particles = out_df2[coordinate_headings].to_numpy()
     return coords_particles, eulers_particles
 
+def rescale_coords(coords: np.ndarray, source_angpix: float, target_angpix: float):
+    scale_factor = source_angpix / target_angpix
+    rescaled_coords = coords / scale_factor
+    return rescaled_coords
 
 def rescale_volume(volume: np.ndarray, source_angpix: float, target_angpix: float, always_even_dims: bool = True):
     scale_factor = source_angpix / target_angpix

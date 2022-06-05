@@ -9,7 +9,8 @@ from muriel import get_tomo_dims, \
     get_pixel_size, \
     rotate_volume, \
     embed_subvolume_in_volume, \
-    get_subtomo_information
+    get_subtomo_information, \
+    rescale_coords
 
 
 # AVERAGE_FILE = Path('tests_ali/avg.mrc')
@@ -46,10 +47,10 @@ def main(AVERAGE_FILE: Path, TOMOGRAM_FILE: Path, TOMOGRAM_NAME: str, POSE_FILE:
                                       always_even_dims=True)
 
     subvolume_coords, subvolume_eulers = get_subtomo_information(POSE_FILE, TOMOGRAM_NAME)
-
+    rescaled_subvolume_coords = rescale_coords(subvolume_coords, tomogram_pixel_size, average_pixel_size)
     rotated_averages = rotate_volume(average_rescaled, euler_angles=subvolume_eulers)
 
-    mapped_back_subvolumes, ignored_subvolume_indices = embed_subvolume_in_volume(output_volume, rotated_averages, subvolume_coords)
+    mapped_back_subvolumes, ignored_subvolume_indices = embed_subvolume_in_volume(output_volume, rotated_averages, rescaled_subvolume_coords)
     mapped_back_subvolumes = np.swapaxes(mapped_back_subvolumes,2,0)
     with mrcfile.new(OUTFILE, data=mapped_back_subvolumes, overwrite=True) as omrc:
         omrc.voxel_size = tomogram_pixel_size
